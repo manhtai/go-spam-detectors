@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	train, test := common.LoadSamples()
+	train, test := LoadSamples()
 
 	fmt.Printf("Total samples: %d\n", len(train)+len(test))
 	fmt.Printf("Samples to train: %d\n", len(train))

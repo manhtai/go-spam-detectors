@@ -32,7 +32,7 @@ type Sample struct {
 	Class
 }
 
-func shuffle(a []Sample) {
+func Shuffle(a []Sample) {
 	for i := len(a) - 1; i > 0; i-- {
 		j := rand.Intn(i + 1)
 		a[i], a[j] = a[j], a[i]
@@ -59,5 +59,4 @@ func (d Doc) IDs() []int { return d }
 type Classifier interface {
 	Train(ex []Sample)
 	Predict(s []string) Class
-	Unseens(s []string) int
 }

@@ -1,14 +1,12 @@
 Go spam detectors
 =================
 
-### 1. Manual Bayes
+### 1. Bayes from scratch
 
 ```sh
-go run bayes-manual/*.go
+go run bayes-plain/*.go
 ```
 
-### 2. Bayes
+### 2. KNN
 
-### 3. KNN
-
-### 4. Gradient Boosting
+### 3. Gradient Boosting

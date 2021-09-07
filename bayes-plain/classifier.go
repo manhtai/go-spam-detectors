@@ -35,7 +35,7 @@ func (c *bayesClassifier) Train(samples []common.Sample) {
 	}
 }
 
-func (c *bayesClassifier) Postprocess() {
+func (c *bayesClassifier) postprocess() {
 	c.Lock()
 	if c.ready {
 		return
@@ -47,7 +47,6 @@ func (c *bayesClassifier) Postprocess() {
 	}
 	for _, t := range c.tfidfs {
 		t.Docs = docs
-		// t.CalculateIDF()
 		for k, v := range t.TF {
 			t.IDF[k] = math.Log1p(float64(t.Docs) / v)
 		}
@@ -56,9 +55,9 @@ func (c *bayesClassifier) Postprocess() {
 	c.Unlock()
 }
 
-func (c *bayesClassifier) Score(sentence []string) (scores [common.MAX_CLASS]float64) {
+func (c *bayesClassifier) score(sentence []string) (scores [common.MAX_CLASS]float64) {
 	if !c.ready {
-		c.Postprocess()
+		c.postprocess()
 	}
 
 	d := make(common.Doc, len(sentence))
@@ -84,11 +83,11 @@ func (c *bayesClassifier) Score(sentence []string) (scores [common.MAX_CLASS]flo
 }
 
 func (c *bayesClassifier) Predict(sentence []string) common.Class {
-	scores := c.Score(sentence)
+	scores := c.score(sentence)
 	return common.Argmax(scores)
 }
 
-func (c *bayesClassifier) Unseens(sentence []string) (retVal int) {
+func (c *bayesClassifier) unseens(sentence []string) (retVal int) {
 	for _, word := range sentence {
 		if _, ok := c.corpus.Id(word); !ok {
 			retVal++
