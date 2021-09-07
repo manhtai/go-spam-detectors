@@ -1,73 +1,41 @@
 package main
 
 import (
-	"math"
-	"math/rand"
-	"sync"
-
 	"github.com/chewxy/lingo/corpus"
 	"github.com/go-nlp/tfidf"
+	"go-spam-detector/common"
+	"math"
+	"sync"
 )
 
-const tiny = 0.0000001
-
-type Class byte
-
-const (
-	Ham Class = iota
-	Spam
-	MAXCLASS
-)
-
-func (c Class) String() string {
-	switch c {
-	case Ham:
-		return "Ham"
-	case Spam:
-		return "Spam"
-	default:
-		panic("HELP")
-	}
-}
-
-// Example is a tuple representing a classification example
-type Example struct {
-	Document []string
-	Class
-}
-
-type doc []int
-
-func (d doc) IDs() []int { return []int(d) }
-
-type Classifier struct {
+type bayesClassifier struct {
 	corpus *corpus.Corpus
 
-	tfidfs [MAXCLASS]*tfidf.TFIDF
-	totals [MAXCLASS]float64
+	tfidfs [common.MAX_CLASS]*tfidf.TFIDF
+	totals [common.MAX_CLASS]float64
 
 	ready bool
 	sync.Mutex
 }
 
-func New() *Classifier {
-	var tfidfs [MAXCLASS]*tfidf.TFIDF
-	for i := Ham; i < MAXCLASS; i++ {
+func NewBayesClassifier() common.Classifier {
+	var tfidfs [common.MAX_CLASS]*tfidf.TFIDF
+	for i := common.Ham; i < common.MAX_CLASS; i++ {
 		tfidfs[i] = tfidf.New()
 	}
-	return &Classifier{
+	return &bayesClassifier{
 		corpus: corpus.New(),
 		tfidfs: tfidfs,
 	}
 }
 
-func (c *Classifier) Train(examples []Example) {
-	for _, ex := range examples {
-		c.trainOne(ex)
+func (c *bayesClassifier) Train(samples []common.Sample) {
+	for _, sam := range samples {
+		c.trainOne(sam)
 	}
 }
 
-func (c *Classifier) Postprocess() {
+func (c *bayesClassifier) Postprocess() {
 	c.Lock()
 	if c.ready {
 		return
@@ -88,12 +56,12 @@ func (c *Classifier) Postprocess() {
 	c.Unlock()
 }
 
-func (c *Classifier) Score(sentence []string) (scores [MAXCLASS]float64) {
+func (c *bayesClassifier) Score(sentence []string) (scores [common.MAX_CLASS]float64) {
 	if !c.ready {
 		c.Postprocess()
 	}
 
-	d := make(doc, len(sentence))
+	d := make(common.Doc, len(sentence))
 	for i, word := range sentence {
 		id := c.corpus.Add(word)
 		d[i] = id
@@ -106,7 +74,7 @@ func (c *Classifier) Score(sentence []string) (scores [MAXCLASS]float64) {
 		score := math.Log(priors[i])
 		// likelihood
 		for _, word := range sentence {
-			prob := c.prob(word, Class(i))
+			prob := c.prob(word, common.Class(i))
 			score += math.Log(prob)
 		}
 
@@ -115,12 +83,12 @@ func (c *Classifier) Score(sentence []string) (scores [MAXCLASS]float64) {
 	return
 }
 
-func (c *Classifier) Predict(sentence []string) Class {
+func (c *bayesClassifier) Predict(sentence []string) common.Class {
 	scores := c.Score(sentence)
-	return argmax(scores)
+	return common.Argmax(scores)
 }
 
-func (c *Classifier) unseens(sentence []string) (retVal int) {
+func (c *bayesClassifier) Unseens(sentence []string) (retVal int) {
 	for _, word := range sentence {
 		if _, ok := c.corpus.Id(word); !ok {
 			retVal++
@@ -129,8 +97,8 @@ func (c *Classifier) unseens(sentence []string) (retVal int) {
 	return
 }
 
-func (c *Classifier) trainOne(example Example) {
-	d := make(doc, len(example.Document))
+func (c *bayesClassifier) trainOne(example common.Sample) {
+	d := make(common.Doc, len(example.Document))
 	for i, word := range example.Document {
 		id := c.corpus.Add(word)
 		d[i] = id
@@ -139,23 +107,23 @@ func (c *Classifier) trainOne(example Example) {
 	c.totals[example.Class]++
 }
 
-func (c *Classifier) priors() (priors []float64) {
-	priors = make([]float64, MAXCLASS)
+func (c *bayesClassifier) priors() (priors []float64) {
+	priors = make([]float64, common.MAX_CLASS)
 	var sum float64
 	for i, total := range c.totals {
 		priors[i] = total
 		sum += total
 	}
-	for i := Ham; i < MAXCLASS; i++ {
+	for i := common.Ham; i < common.MAX_CLASS; i++ {
 		priors[int(i)] /= sum
 	}
 	return
 }
 
-func (c *Classifier) prob(word string, class Class) float64 {
+func (c *bayesClassifier) prob(word string, class common.Class) float64 {
 	id, ok := c.corpus.Id(word)
 	if !ok {
-		return tiny
+		return common.Tiny
 	}
 
 	freq := c.tfidfs[class].TF[id]
@@ -163,28 +131,8 @@ func (c *Classifier) prob(word string, class Class) float64 {
 
 	// a word may not appear at all in a class.
 	if freq == 0 {
-		return tiny
+		return common.Tiny
 	}
 
 	return freq * idf / c.totals[class]
-}
-
-func argmax(a [MAXCLASS]float64) Class {
-	max := math.Inf(-1)
-	var maxClass Class
-	for i := Ham; i < MAXCLASS; i++ {
-		score := a[i]
-		if score > max {
-			maxClass = i
-			max = score
-		}
-	}
-	return maxClass
-}
-
-func shuffle(a []Example) {
-	for i := len(a) - 1; i > 0; i-- {
-		j := rand.Intn(i + 1)
-		a[i], a[j] = a[j], a[i]
-	}
 }

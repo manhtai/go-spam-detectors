@@ -1,9 +1,10 @@
-package main
+package common
 
 import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"path/filepath"
 	"strings"
 
@@ -21,7 +22,20 @@ func (err errList) Error() string {
 	return buf.String()
 }
 
-func ingest(typ string) (examples []Example, err error) {
+func LoadSamples(typ string) ([]Sample, []Sample) {
+	total, err := ingest(typ)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Total loaded: %d\n", len(total))
+	shuffle(total)
+	cvStart := len(total) - len(total)/3
+
+	return total[:cvStart], total[cvStart:]
+}
+
+func ingest(typ string) (samples []Sample, err error) {
 	switch typ {
 	case "bare", "lemm", "lemm_stop", "stop":
 	default:
@@ -46,9 +60,9 @@ func ingest(typ string) (examples []Example, err error) {
 			}
 
 			if strings.Contains(match, "spmsg") { // is spam
-				examples = append(examples, Example{str, Spam})
+				samples = append(samples, Sample{str, Spam})
 			} else { // is ham
-				examples = append(examples, Example{str, Ham})
+				samples = append(samples, Sample{str, Ham})
 			}
 		}
 	}
