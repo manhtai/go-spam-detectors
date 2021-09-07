@@ -1,9 +1,8 @@
-package main
+package common
 
 import (
 	"encoding/csv"
 	"fmt"
-	"go-spam-detector/common"
 	"log"
 	"os"
 	"regexp"
@@ -11,18 +10,18 @@ import (
 	"strings"
 )
 
-func LoadSamples() (train []common.Sample, test []common.Sample) {
+func loadSamples() (train []Sample, test []Sample) {
 	total, err := load()
 	if err != nil {
 		log.Fatal(err)
 	}
-	common.Shuffle(total)
+	Shuffle(total)
 	cvStart := len(total) - len(total)/3
 
 	return total[:cvStart], total[cvStart:]
 }
 
-func load() (samples []common.Sample, err error) {
+func load() (samples []Sample, err error) {
 	f, err := os.Open("datasets/messages.csv")
 	if err != nil {
 		return samples, err
@@ -39,7 +38,7 @@ func load() (samples []common.Sample, err error) {
 		content := cleanContent(fmt.Sprintf("%s %s", l[0], l[1]))
 		class, _ := strconv.ParseInt(l[2], 10, 32)
 
-		samples = append(samples, common.Sample{strings.Split(content, " "), common.Class(class)})
+		samples = append(samples, Sample{strings.Split(content, " "), Class(class)})
 	}
 
 	return
