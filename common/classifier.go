@@ -28,7 +28,7 @@ func (c Class) String() string {
 
 // Sample is a tuple representing a classification example
 type Sample struct {
-	Document []string
+	Content []string
 	Class
 }
 

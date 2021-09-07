@@ -97,8 +97,8 @@ func (c *bayesClassifier) unseens(sentence []string) (retVal int) {
 }
 
 func (c *bayesClassifier) trainOne(example common.Sample) {
-	d := make(common.Doc, len(example.Document))
-	for i, word := range example.Document {
+	d := make(common.Doc, len(example.Content))
+	for i, word := range example.Content {
 		id := c.corpus.Add(word)
 		d[i] = id
 	}
