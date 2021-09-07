@@ -6,7 +6,7 @@ Go spam detectors
 ### 1. Bayes with TF-IDF
 
 ```sh
-go run tfidf-bayes/*.go
+go run bayes/*.go
 ```
 
 ### 2. KNN with TF-IDF
