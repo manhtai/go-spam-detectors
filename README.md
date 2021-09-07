@@ -1,15 +1,14 @@
 Go spam detectors
 =================
 
-- Unarchive `lingspam_public.tar.gz` into `lingspam_public` folder
-
-### 1. Bayes with TF-IDF
+### 1. Manual Bayes
 
 ```sh
-go run bayes/*.go
+go run bayes-manual/*.go
 ```
 
-### 2. KNN with TF-IDF
+### 2. Bayes
 
+### 3. KNN
 
-### 3. Gradient Boosting with TF-IDF
+### 4. Gradient Boosting

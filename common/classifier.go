@@ -10,17 +10,17 @@ const Tiny = 0.0000001
 type Class byte
 
 const (
-	Ham Class = iota
-	Spam
+	Spam Class = iota
+	Ham
 	MAX_CLASS
 )
 
 func (c Class) String() string {
 	switch c {
-	case Ham:
-		return "Ham"
 	case Spam:
 		return "Spam"
+	case Ham:
+		return "Ham"
 	default:
 		panic("HELP")
 	}
@@ -42,7 +42,7 @@ func shuffle(a []Sample) {
 func Argmax(a [MAX_CLASS]float64) Class {
 	max := math.Inf(-1)
 	var maxClass Class
-	for i := Ham; i < MAX_CLASS; i++ {
+	for i := Spam; i < MAX_CLASS; i++ {
 		score := a[i]
 		if score > max {
 			maxClass = i
