@@ -1,4 +1,4 @@
-module go-spam-detector
+module go-spam-detectors
 
 go 1.16
 
