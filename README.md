@@ -12,3 +12,9 @@ go run bayes/*.go
 ```sh
 go run bayes2/*.go
 ```
+
+### 3. Bayes from `bayesian`
+
+```sh
+go run bayes3/*.go
+```
