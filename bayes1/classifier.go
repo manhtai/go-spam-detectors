@@ -18,7 +18,7 @@ type bayesClassifier struct {
 	sync.Mutex
 }
 
-func NewBayesClassifier() common.Classifier {
+func NewBayes1Classifier() common.Classifier {
 	var tfidfs [common.MAX_CLASS]*tfidf.TFIDF
 	for i := common.Spam; i < common.MAX_CLASS; i++ {
 		tfidfs[i] = tfidf.New()

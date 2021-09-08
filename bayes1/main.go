@@ -5,6 +5,6 @@ import (
 )
 
 func main() {
-	classifier := NewBayesClassifier()
+	classifier := NewBayes1Classifier()
 	common.Summary(classifier)
 }
