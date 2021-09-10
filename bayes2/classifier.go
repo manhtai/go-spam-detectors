@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/cdipaolo/goml/base"
 	"github.com/cdipaolo/goml/text"
-	"go-spam-detector/common"
+	"go-spam-detectors/common"
 	"strings"
 )
 

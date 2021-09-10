@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go-spam-detector/common"
+	"go-spam-detectors/common"
 )
 
 func main() {

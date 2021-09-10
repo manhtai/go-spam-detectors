@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/chewxy/lingo/corpus"
 	"github.com/go-nlp/tfidf"
-	"go-spam-detector/common"
+	"go-spam-detectors/common"
 	"math"
 	"sync"
 )
